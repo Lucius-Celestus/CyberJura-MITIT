@@ -1,0 +1,21 @@
+name: ctf-platform
+
+services:
+  ctf-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ctf-platform
+    ports:
+      - "8000:5000"
+    environment:
+      # ОБОВ'ЯЗКОВО замінити на випадкове значення у продакшн-деплої —
+      # від цього залежить і підпис сесій, і сіль для генерації прапорців.
+      SECRET_KEY: "change-me-in-production-please-use-a-random-value"
+      FLAG_SALT: "change-me-in-production-please-use-a-random-value"
+    volumes:
+      - ctf_data:/app/backend/data
+    restart: unless-stopped
+
+volumes:
+  ctf_data:

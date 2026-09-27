@@ -1,10 +1,11 @@
 import os
+import re
 import secrets
 
 from flask import Flask, jsonify, request, session, send_from_directory
 
 from db import init_db, get_db
-from flags import generate_flag, check_flag
+from flags import generate_flag, check_flag, check_flags, get_expected_flags
 from challenges import CHALLENGES_BY_ID, public_challenge_list
 from auth import bp as auth_bp, require_auth
 from labs import bp as labs_bp
@@ -112,14 +113,35 @@ def reveal_writeup(task_id):
 def submit_flag():
     data = request.get_json(silent=True) or {}
     task_id = data.get("task_id", "")
-    submitted = (data.get("flag") or "").strip()
 
     if task_id not in CHALLENGES_BY_ID:
         return jsonify({"error": "Невідоме завдання"}), 404
 
     uid = session["user_id"]
-    if not check_flag(uid, task_id, submitted):
-        return jsonify({"correct": False}), 200
+    expected_flags = get_expected_flags(uid, task_id)
+
+    raw_flags = data.get("flags")
+    if raw_flags is not None:
+        if isinstance(raw_flags, list):
+            submitted_flags = [str(f).strip() for f in raw_flags if str(f).strip()]
+        else:
+            submitted_flags = [s.strip() for s in re.split(r"[\n,;]+", str(raw_flags)) if s.strip()]
+    else:
+        single = (data.get("flag") or "").strip()
+        submitted_flags = [s.strip() for s in re.split(r"[\n,;]+", single) if s.strip()]
+
+    # If the task requires multiple flags, each is mandatory
+    if len(expected_flags) > 1 and len(submitted_flags) < len(expected_flags):
+        return jsonify({
+            "correct": False,
+            "message": f"Обов'язково ввести кожен з {len(expected_flags)} прапорців! (Введено {len(submitted_flags)} з {len(expected_flags)})"
+        }), 200
+
+    if not check_flags(uid, task_id, submitted_flags):
+        return jsonify({
+            "correct": False,
+            "message": "Невірний прапорець (або введено не всі обов'язкові прапорці)."
+        }), 200
 
     conn = get_db()
     conn.execute(
@@ -163,7 +185,12 @@ def get_challenge_flag(task_id):
             "error": "Прапорець заблоковано: практичне завдання ще не виконано в лабораторії!"
         }), 403
 
-    return jsonify({"flag": generate_flag(uid, task_id)})
+    flags = get_expected_flags(uid, task_id)
+    return jsonify({
+        "flag": flags[0],
+        "flags": flags,
+        "flags_count": len(flags)
+    })
 
 
 # ---------------------------------------------------------------- leaderboard

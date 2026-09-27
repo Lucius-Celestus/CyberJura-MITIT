@@ -3,19 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CTF Platform // Cyber Edu</title>
+<title>TERMINAL // CTF_SYSTEM [v2.4.1]</title>
 <link rel="stylesheet" href="/vendor/katex/katex.min.css">
 <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 
+<div id="ascii-bg-layer" aria-hidden="true"></div>
 <div id="flash-overlay"></div>
 <div id="toast"></div>
+
+<!-- SYSTEM STATUS STRIP (HEADER) -->
+<div id="sys-status-bar">
+  <div class="sys-item"><span class="prompt">></span> SYS_VER: 2.4.1-MITIT</div>
+  <div class="sys-item">STATUS: [OK]</div>
+  <div class="sys-item">NET: SECURE//TLSv1.3</div>
+  <div class="sys-item">PORT: 8000</div>
+  <div class="sys-item">TTY: /dev/pts/0</div>
+  <div class="sys-item" id="sys-clock">TIME: --:--:--</div>
+</div>
 
 <div id="topbar"></div>
 <div id="app">
   <div class="center-msg">:: Ініціалізація ::</div>
 </div>
+
+
 
 <script src="/vendor/katex/katex.min.js"></script>
 <script src="/vendor/katex/auto-render.min.js"></script>

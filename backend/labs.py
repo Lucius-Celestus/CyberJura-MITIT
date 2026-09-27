@@ -725,7 +725,8 @@ def phishing1_answer():
 @bp.get("/phishing2/urls")
 def phishing2_urls():
     uid = _uid()
-    flag = generate_flag(uid, "phishing-2") if uid else "FLAG{PHISHING2_PUNYCODE_SPOOF}"
+    flag1 = generate_flag(uid, "phishing-2", 1) if uid else "FLAG{PHISHING2_PUNYCODE_GOOGLE}"
+    flag2 = generate_flag(uid, "phishing-2", 2) if uid else "FLAG{PHISHING2_PUNYCODE_RAYPAL}"
     urls = [
         {
             "id": 1,
@@ -744,7 +745,7 @@ def phishing2_urls():
             "homoglyph_details": "Символи 'о' (U+043E) належать до кирилиці замість латинських 'o' (U+006F)",
             "ip_resolution": "185.220.101.88",
             "ssl_issuer": "Let's Encrypt Free DV",
-            "c2_token": flag,
+            "c2_token": flag1,
             "status": "Фішингова сторінка перехоплення облікових записів",
         },
         {
@@ -764,7 +765,7 @@ def phishing2_urls():
             "homoglyph_details": "Символ 'а' (U+0430) належить до кирилиці замість латинської 'a' (U+0061)",
             "ip_resolution": "198.51.100.77",
             "ssl_issuer": "ZeroSSL Self-Signed",
-            "c2_token": flag,
+            "c2_token": flag2,
             "status": "Шкідливе перенаправлення на сервер експлойтів",
         },
     ]
@@ -775,13 +776,7 @@ def phishing2_urls():
 def phishing2_answer():
     data = request.get_json(silent=True) or {}
     picked_ids = set(data.get("malicious_ids") or [])
-    token = (data.get("token") or "").strip()
-    uid = _uid()
-    expected = generate_flag(uid, "phishing-2") if uid else "FLAG{PHISHING2_PUNYCODE_SPOOF}"
-
-    solved = (picked_ids == {2, 4}) and (
-        (token == expected) or ("IDN_HOMOGRAPH" in token)
-    )
+    solved = (picked_ids == {2, 4})
     if solved:
         mark_lab_completed("phishing-2")
     return jsonify({"task_solved": solved})

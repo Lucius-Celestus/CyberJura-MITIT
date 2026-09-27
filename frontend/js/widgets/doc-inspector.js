@@ -150,7 +150,8 @@ async function initWin98Desktop(container, labId, onSolved) {
 
   function closeWindow(winId) {
     delete windows[winId];
-    const el = container.querySelector(`.win98-window[data-winId="${winId}"]`);
+    // dataset.winId створює атрибут data-win-id, а не data-winId
+    const el = container.querySelector(`.win98-window[data-win-id="${winId}"]`);
     if (el) el.remove();
     const remaining = Object.keys(windows);
     activeWinId = remaining.length ? remaining[remaining.length - 1] : null;
@@ -173,27 +174,28 @@ async function initWin98Desktop(container, labId, onSolved) {
     let top = 25;
     let left = 40;
 
-    if (ic.type === "meta") {
-      title = `Властивості: ${ic.name}`;
-      const fData = metadataFiles.find((m) => m.filename === ic.name) || metadataFiles[0];
-      bodyHtml = renderMetaContent(fData);
-      width = 540;
-      height = 420;
-    } else if (ic.type === "docx") {
-      title = `Microsoft Word 97 - [${ic.name}]`;
-      const cur = docxSamples.find((s) => s.id === ic.sampleId) || docxSamples[0];
-      bodyHtml = renderDocxContent(cur);
-      width = 620;
-      height = 450;
-      left = 20;
-    } else if (ic.type === "pdf") {
-      title = `Acrobat Reader 4.0 - [${ic.name}]`;
-      const cur = pdfSamples.find((s) => s.id === ic.sampleId) || pdfSamples[0];
-      bodyHtml = renderPdfContent(cur);
-      width = 620;
-      height = 450;
-      left = 30;
-    } else if (ic.type === "readme") {
+    try {
+      if (ic.type === "meta") {
+        title = `Властивості: ${ic.name}`;
+        const fData = metadataFiles.find((m) => m.filename === ic.name) || metadataFiles[0];
+        bodyHtml = renderMetaContent(fData);
+        width = 540;
+        height = 420;
+      } else if (ic.type === "docx") {
+        title = `Microsoft Word 97 - [${ic.name}]`;
+        const cur = docxSamples.find((s) => s.id === ic.sampleId) || docxSamples[0];
+        bodyHtml = cur ? renderDocxContent(cur) : "<div style='padding:12px;'>Дані зразків недоступні. Перезавантажте сторінку.</div>";
+        width = 620;
+        height = 450;
+        left = 20;
+      } else if (ic.type === "pdf") {
+        title = `Acrobat Reader 4.0 - [${ic.name}]`;
+        const cur = pdfSamples.find((s) => s.id === ic.sampleId) || pdfSamples[0];
+        bodyHtml = cur ? renderPdfContent(cur) : "<div style='padding:12px;'>Дані зразків недоступні. Перезавантажте сторінку.</div>";
+        width = 620;
+        height = 450;
+        left = 30;
+      } else if (ic.type === "readme") {
       title = `Блокнот - [README.txt]`;
       bodyHtml = `
         <div style="font-family:'Courier New', monospace;font-size:12px;padding:8px;line-height:1.6;">
@@ -232,6 +234,11 @@ async function initWin98Desktop(container, labId, onSolved) {
       height = 220;
       top = 70;
       left = 90;
+    }
+    } catch (e) {
+      console.error("openWindow render error:", e);
+      title = ic.name;
+      bodyHtml = `<div style="padding:12px;color:#990000;">Помилка відображення вмісту: ${escapeHtml(e.message)}</div>`;
     }
 
     windows[iconId] = { title, iconId };
@@ -415,8 +422,8 @@ async function initWin98Desktop(container, labId, onSolved) {
             <div style="font-weight:bold;margin-bottom:6px;color:#000080;">Об'єкти документа PDF:</div>
             <div class="pdf-obj-list">
               ${objs.map((o) => `
-                <div class="pdf-obj-entry" data-id="${o.id}" style="padding:2px 4px;cursor:pointer;${o.type.includes('JavaScript') ? 'font-weight:bold;color:#990000;' : ''}">
-                  &bull; Об'єкт ${o.id} (${escapeHtml(o.type)})
+                <div class="pdf-obj-entry" data-id="${o.id}" style="padding:2px 4px;cursor:pointer;${(o.summary || '').includes('JavaScript') ? 'font-weight:bold;color:#990000;' : ''}">
+                  &bull; Об'єкт ${o.id}: ${escapeHtml(o.summary || '')}
                 </div>
               `).join("")}
             </div>

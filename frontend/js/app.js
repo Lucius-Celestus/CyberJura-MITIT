@@ -156,6 +156,7 @@ function renderAuthScreen() {
 // ---------------------------------------------------------------- ROUTE DISPATCH
 function render() {
   if (!state.user) return;
+  appEl.classList.remove("is-matrix");
   renderTopbar();
   const hash = window.location.hash || "#/challenges";
   const parts = hash.replace("#/", "").split("/");
@@ -174,34 +175,55 @@ async function renderChallengesList() {
   appEl.innerHTML = `<div class="center-msg">:: Завантаження завдань ::</div>`;
   const { data } = await API.get("/api/challenges");
   state.challenges = data.challenges || [];
+  appEl.classList.add("is-matrix");
 
   const categories = [...new Set(state.challenges.map((c) => c.category))];
-  let html = `<h1>Challenge Matrix</h1><div class="subtitle">Обери завдання — прогрес та динамічні прапорці зберігаються окремо.</div>`;
+  let html = `
+    <div class="page-head">
+      <h1>Challenge Matrix</h1>
+      <div class="subtitle">Обери завдання — прогрес та динамічні прапорці зберігаються окремо.</div>
+    </div>`;
 
   categories.forEach((cat) => {
-    html += `<div class="category-label">${escapeHtml(cat)}</div><div class="chal-grid">`;
-    state.challenges.filter((c) => c.category === cat).forEach((c) => {
+    const list = state.challenges.filter((c) => c.category === cat);
+    html += `
+      <div class="category-label">
+        <span class="cat-name">${escapeHtml(cat)}</span>
+        <span class="cat-n">${String(list.length).padStart(2, "0")} TASKS</span>
+      </div>
+      <div class="chal-grid">`;
+
+    list.forEach((c) => {
+      const diff = String(c.difficulty || "").toLowerCase();
       let badgeHtml = "";
       if (c.solved && c.is_unranked) {
-        badgeHtml = `<span class="badge unranked">SOLVED (UNRANKED)</span>`;
+        badgeHtml = `<span class="badge unranked">SOLVED · UNRANKED</span>`;
       } else if (c.solved) {
         badgeHtml = `<span class="badge solved">SOLVED</span>`;
       } else if (c.writeup_unlocked) {
         badgeHtml = `<span class="badge unranked">UNRANKED</span>`;
       } else {
-        badgeHtml = `<span class="badge dim">${c.difficulty.toUpperCase()}</span>`;
+        badgeHtml = `<span class="badge dim">${escapeHtml(diff || "task")}</span>`;
       }
 
+      const brief = c.brief || "";
+      const short = brief.length > 140 ? brief.slice(0, 140) + "…" : brief;
+
       html += `
-        <div class="chal-card ${c.solved ? "solved" : ""}" data-id="${c.id}">
+        <article class="chal-card ${escapeHtml(diff)} ${c.solved ? "solved" : ""}" data-id="${c.id}">
           <div class="top-row">
             ${badgeHtml}
-            <span class="pts">${c.points} pts</span>
+            <span class="pts">${c.points} <span>pts</span></span>
           </div>
           <h3>${escapeHtml(c.title)}</h3>
-          <p>${escapeHtml(c.brief.slice(0, 95))}...</p>
-        </div>`;
+          <p>${escapeHtml(short)}</p>
+          <div class="chal-foot">
+            <span>${escapeHtml(diff || "task")}</span>
+            <span class="go">Відкрити</span>
+          </div>
+        </article>`;
     });
+
     html += `</div>`;
   });
 

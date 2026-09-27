@@ -1545,3 +1545,132 @@ tbody tr:nth-child(3) td:first-child { color: var(--fg); font-weight: bold; }
     transition: none !important;
   }
 }
+
+/* =========================================================================
+   ACHIEVEMENTS PAGE (F4) — same TUI tokens, no new palette
+   ========================================================================= */
+.ach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.ach-card .ach-desc {
+  color: var(--fg-dim);
+  font-size: 12px;
+  text-transform: none;
+  margin-bottom: 12px;
+  line-height: 1.55;
+}
+
+.photo-placeholder {
+  background: #000000;
+  border: 1px dashed var(--fg-dim);
+  color: var(--fg-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+.photo-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(300%) brightness(85%);
+  border: none;
+  image-rendering: pixelated;
+}
+.ach-photo {
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--fg);
+  margin-bottom: 28px;
+  background: #000000;
+}
+.faq-item {
+  border-bottom: 1px dashed var(--fg-dim);
+  background: #000000;
+}
+.faq-item:last-child {
+  border-bottom: none;
+}
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 12px;
+  color: var(--fg);
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:hover {
+  background: var(--fg);
+  color: #000000;
+}
+.faq-idx {
+  color: var(--fg-dim);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.faq-item summary:hover .faq-idx { color: #000000; }
+.faq-a {
+  padding: 0 12px 12px;
+  color: var(--fg-dim);
+  font-size: 12px;
+  line-height: 1.6;
+  text-transform: none;
+}
+
+.team {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+.team-member {
+  width: 220px;
+  text-align: center;
+  border: 1px solid var(--fg-dim);
+  padding: 10px;
+  background: #000000;
+}
+.team-member:hover {
+  border-color: var(--fg);
+}
+.team-photo {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 10px;
+}
+.team-name {
+  color: var(--fg);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.team-role {
+  color: var(--fg-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .ach-photo { height: 220px; }
+  .team-member { width: 100%; }
+  .team-photo { width: 100%; height: 220px; }
+}

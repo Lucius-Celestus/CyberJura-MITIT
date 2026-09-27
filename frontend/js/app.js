@@ -65,7 +65,7 @@ function initSysStatus() {
     const h = String(now.getHours()).padStart(2, "0");
     const m = String(now.getMinutes()).padStart(2, "0");
     const s = String(now.getSeconds()).padStart(2, "0");
-    el.textContent = `TIME: ${h}:${m}:${s}`;
+    el.textContent = "TIME: " + h + ":" + m + ":" + s;
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -84,6 +84,8 @@ function initSysStatus() {
       go("#/leaderboard");
     } else if (e.key === "3") {
       go("#/chill");
+    } else if (e.key === "4") {
+      go("#/achievements");
     } else if (e.key === "Escape") {
       const hash = window.location.hash || "";
       if (hash.startsWith("#/challenge/")) {
@@ -110,18 +112,19 @@ async function init() {
 function renderTopbar() {
   if (!state.user) { topbarEl.innerHTML = ""; return; }
   const route = (window.location.hash || "#/challenges").split("/")[1] || "challenges";
-  topbarEl.innerHTML = `
-    <span class="logo">CTF_PLATFORM // TUI</span>
-    <nav>
-      <button data-r="challenges" class="${route === "challenges" ? "active" : ""}">[1] ЗАВДАННЯ</button>
-      <button data-r="leaderboard" class="${route === "leaderboard" ? "active" : ""}">[2] СКОРБОРД</button>
-      <button data-r="chill" class="${route === "chill" ? "active" : ""}">[3] ЯКЩО НЕ ЦІКАВО</button>
-    </nav>
-    <span class="userbox">
-      OPERATOR: <strong>${escapeHtml(state.user.username.toUpperCase())}</strong>${state.user.is_guest ? " [GUEST]" : ""}
-      <button id="logout-btn">[ ВИХІД ]</button>
-    </span>
-  `;
+  topbarEl.innerHTML =
+    '<span class="logo">CTF_PLATFORM // TUI</span>' +
+    "<nav>" +
+      '<button data-r="challenges" class="' + (route === "challenges" ? "active" : "") + '">[1] ЗАВДАННЯ</button>' +
+      '<button data-r="leaderboard" class="' + (route === "leaderboard" ? "active" : "") + '">[2] СКОРБОРД</button>' +
+      '<button data-r="chill" class="' + (route === "chill" ? "active" : "") + '">[3] ЯКЩО НЕ ЦІКАВО</button>' +
+      '<button data-r="achievements" class="' + (route === "achievements" ? "active" : "") + '">[4] ДОСЯГНЕННЯ</button>' +
+    "</nav>" +
+    '<span class="userbox">' +
+      "OPERATOR: <strong>" + escapeHtml(state.user.username.toUpperCase()) + "</strong>" +
+      (state.user.is_guest ? " [GUEST]" : "") +
+      '<button id="logout-btn">[ ВИХІД ]</button>' +
+    "</span>";
   topbarEl.querySelectorAll("nav button").forEach((b) =>
     b.addEventListener("click", () => go("#/" + b.dataset.r))
   );
@@ -207,6 +210,8 @@ function render() {
     renderLeaderboard();
   } else if (parts[0] === "chill" || parts[0] === "boring") {
     renderChillZone();
+  } else if (parts[0] === "achievements") {
+    renderAchievements();
   } else {
     renderChallengesList();
   }
@@ -984,6 +989,114 @@ function renderChillZone() {
   });
 
   renderMovieList();
+}
+
+// ---------------------------------------------------------------- ACHIEVEMENTS ("ДОСЯГНЕННЯ")
+function renderAchievements() {
+  appEl.classList.remove("is-matrix");
+
+  const ACHIEVEMENTS = [
+    {
+      title: "[НАЗВА ДОСЯГНЕННЯ 1]",
+      desc: "[КОРОТКИЙ ОПИС ДОСЯГНЕННЯ]",
+      photo: null,
+      photoSize: "600x400 px"
+    },
+    {
+      title: "[НАЗВА ДОСЯГНЕННЯ 2]",
+      desc: "[КОРОТКИЙ ОПИС ДОСЯГНЕННЯ]",
+      photo: null,
+      photoSize: "600x400 px"
+    }
+  ];
+
+  const FAQ = [
+    {
+      q: "Чим займається ваша агітаційна група?",
+      a: "Ми розповідаємо абітурієнтам про спеціальності Кібербезпека та Озброєння та військова техніка у ВІТІ Крут."
+    },
+    {
+      q: "Чому варто обрати кібербезпеку?",
+      a: "Кібербезпека — це майбутнє. Військові та державні структури шукають фахівців, здатних захищати дані від кібератак."
+    },
+    {
+      q: "Як долучитися до вашої команди?",
+      a: "Напишіть нам у Telegram або знайдіть у університеті."
+    }
+  ];
+
+  const TEAM = [
+    { name: "[IMYA 1]", role: "[ROL 1]", photo: null },
+    { name: "[IMYA 2]", role: "[ROL 2]", photo: null },
+    { name: "[IMYA 3]", role: "[ROL 3]", photo: null }
+  ];
+
+  function photoBox(src, hint, extraClass) {
+    const cls = "photo-placeholder" + (extraClass ? " " + extraClass : "");
+    if (src) {
+      return '<div class="' + cls + ' is-filled"><img src="' + escapeHtml(src) + '" alt=""></div>';
+    }
+    return '<div class="' + cls + '"><span>' + escapeHtml(hint) + "</span></div>";
+  }
+
+  const achHtml = ACHIEVEMENTS.map(function (item, i) {
+    const n = String(i + 1).padStart(2, "0");
+    const hint = ">> FOTO DOSIAGNENNIA " + (i + 1) + "  |  " + item.photoSize + "  |  .jpg / .png";
+    return (
+      '<article class="card ach-card">' +
+        '<div class="tui-panel-hdr">ACH_' + n + "</div>" +
+        "<h3>" + escapeHtml(item.title) + "</h3>" +
+        '<p class="ach-desc">' + escapeHtml(item.desc) + "</p>" +
+        photoBox(item.photo, hint, "ach-photo") +
+      "</article>"
+    );
+  }).join("");
+
+  const faqHtml = FAQ.map(function (item, i) {
+    const n = String(i + 1).padStart(2, "0");
+    return (
+      '<details class="faq-item">' +
+        "<summary>" +
+          '<span class="faq-idx">Q' + n + "</span>" +
+          '<span class="faq-q">' + escapeHtml(item.q) + "</span>" +
+        "</summary>" +
+        '<div class="faq-a">' + escapeHtml(item.a) + "</div>" +
+      "</details>"
+    );
+  }).join("");
+
+  const teamHtml = TEAM.map(function (m, i) {
+    const hint = ">> FOTO " + (i + 1) + "  |  200x200 px  |  .jpg / .png";
+    return (
+      '<article class="team-member">' +
+        photoBox(m.photo, hint, "team-photo") +
+        '<div class="team-name">' + escapeHtml(m.name) + "</div>" +
+        '<div class="team-role">' + escapeHtml(m.role) + "</div>" +
+      "</article>"
+    );
+  }).join("");
+
+  appEl.innerHTML =
+    '<div class="page-head tui-page-head">' +
+      '<div class="tui-double-box">' +
+        '<div class="tui-box-title">[ AGITATION CELL // ACHIEVEMENTS LOG ]</div>' +
+        '<p class="subtitle" style="margin: 6px 0 8px;">Agitaciyna grupa fakultetu. Sklad: 3 operatory.</p>' +
+        '<div class="tui-status-strip">' +
+          "<span>MODULE: F4</span>" +
+          "<span>STATUS: READY</span>" +
+          "<span>RECORDS: " + ACHIEVEMENTS.length + "</span>" +
+          "<span>CREW: " + TEAM.length + "</span>" +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+    "<h1>НАШІ ДОСЯГНЕННЯ</h1>" +
+    '<div class="subtitle">Foto ta pidpysy pidstavite piznishe. Zaraz — sloty z rozmiramy.</div>' +
+    '<div class="ach-list">' + achHtml + "</div>" +
+    "<h2>FAQ</h2>" +
+    '<div class="faq-list">' + faqHtml + "</div>" +
+    "<h2>НАША КОМАНДА</h2>" +
+    '<p class="subtitle">3 osoby. Kvadrat pid foto: 200x200 px.</p>' +
+    '<div class="team">' + teamHtml + "</div>";
 }
 
 // ---------------------------------------------------------------- RETRO ASCII BACKGROUND LAYER

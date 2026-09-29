@@ -96,14 +96,28 @@ def login():
 
 @bp.post("/guest")
 def guest_login():
+    import sqlite3
+
     conn = get_db()
-    suffix = "".join(random.choices(string.digits, k=6))
-    username = f"guest_{suffix}"
-    cur = conn.execute(
-        "INSERT INTO users (username, password_hash, is_guest) VALUES (?, NULL, 1)",
-        (username,),
-    )
-    conn.commit()
+    cur = None
+    # Рідкісна колізія 6-значного суфікса не має завершуватися 500 — ретраїмо
+    for _ in range(5):
+        suffix = "".join(random.choices(string.digits, k=6))
+        username = f"guest_{suffix}"
+        try:
+            cur = conn.execute(
+                "INSERT INTO users (username, password_hash, is_guest) VALUES (?, NULL, 1)",
+                (username,),
+            )
+            conn.commit()
+            break
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            cur = None
+
+    if cur is None:
+        return jsonify({"error": "Не вдалося створити гостьовий акаунт, спробуйте ще раз"}), 500
+
     session["user_id"] = cur.lastrowid
     session["username"] = username
     return jsonify({"id": cur.lastrowid, "username": username, "is_guest": True})

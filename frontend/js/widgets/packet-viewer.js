@@ -82,7 +82,7 @@ async function initPacketViewer(container, labId, onSolved) {
     return `<div class="pv-detail">${tree}${hexBlock}</div>`;
   }
 
-  function draw(filter, selectedNo) {
+  function draw(filter, selectedNo, refocusFilter) {
     let inputFormHtml = "";
     if (isTls) {
       inputFormHtml = `
@@ -133,7 +133,7 @@ async function initPacketViewer(container, labId, onSolved) {
     container.innerHTML = `
       <div class="pv-wrap">
         <div class="pv-toolbar">
-          <input type="text" id="pv-filter" placeholder="Фільтр протоколів або адрес (наприклад: POST, DNS, TLS, ICMP, 198.51)" value="${filter || ""}">
+          <input type="text" id="pv-filter" placeholder="Фільтр протоколів або адрес (наприклад: POST, DNS, TLS, ICMP, 198.51)" value="${escapeHtml(filter || "")}">
         </div>
         ${renderTable(filter)}
         <div id="pv-detail-slot"></div>
@@ -174,7 +174,12 @@ async function initPacketViewer(container, labId, onSolved) {
     }
 
     const filterInput = container.querySelector("#pv-filter");
-    filterInput.addEventListener("input", () => draw(filterInput.value, selectedNo));
+    filterInput.addEventListener("input", () => draw(filterInput.value, selectedNo, true));
+
+    if (refocusFilter) {
+      filterInput.focus();
+      filterInput.setSelectionRange(filterInput.value.length, filterInput.value.length);
+    }
 
     if (isTls) {
       const confirmBtn = container.querySelector("#pv-confirm");

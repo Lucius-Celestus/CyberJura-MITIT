@@ -477,7 +477,7 @@ async function initWin98Desktop(container, labId, onSolved) {
 // =========================================================================
 async function initMemoryInspector(container, labId, onSolved) {
   const { data: report } = await API.get(`/api/lab/${labId}/report`);
-  const pslist = report.pslist || [];
+  const pslist = report.pstree || [];
   const malfind = report.malfind || [];
   const netscan = report.netscan || [];
 
@@ -498,7 +498,7 @@ async function initMemoryInspector(container, labId, onSolved) {
               <tr>
                 <td>${p.pid}</td><td>${p.ppid}</td>
                 <td><strong>${escapeHtml(p.name)}</strong></td>
-                <td>${p.threads}</td><td>${p.created}</td>
+                <td>${p.threads != null ? p.threads : "—"}</td><td>${p.created != null ? escapeHtml(p.created) : "—"}</td>
               </tr>
             `).join("")}
           </tbody>

@@ -7,8 +7,9 @@ const API = {
     };
     if (body !== undefined) opts.body = JSON.stringify(body);
     const res = await fetch(url, opts);
-    let data = null;
+    let data = {};
     try { data = await res.json(); } catch (e) { /* no body */ }
+    if (!data || typeof data !== "object") data = {};
     return { status: res.status, ok: res.ok, data };
   },
   get(url) { return this._req("GET", url); },

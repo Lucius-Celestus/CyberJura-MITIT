@@ -1674,3 +1674,95 @@ tbody tr:nth-child(3) td:first-child { color: var(--fg); font-weight: bold; }
   .team-member { width: 100%; }
   .team-photo { width: 100%; height: 220px; }
 }
+
+/* =========================================================================
+   AUTH SCREEN — centered column, same TUI tokens
+   ========================================================================= */
+#auth-screen {
+  max-width: 440px;
+  margin: 48px auto 0;
+  padding: 0 8px;
+}
+
+#auth-screen .subtitle {
+  margin-bottom: 18px;
+}
+
+#auth-screen .tabs {
+  display: flex;
+  border: 1px solid var(--fg);
+  margin: 0 0 20px;
+  background: #000000;
+}
+
+#auth-screen .tabs button {
+  flex: 1;
+  border: none;
+  border-right: 1px solid var(--fg);
+  background: #000000;
+  color: var(--fg-dim);
+  padding: 10px 12px;
+}
+
+#auth-screen .tabs button:last-child {
+  border-right: none;
+}
+
+#auth-screen .tabs button.active {
+  background: var(--fg) !important;
+  color: #000000 !important;
+  font-weight: bold;
+}
+
+#auth-screen .field {
+  margin-bottom: 16px;
+}
+
+#auth-screen #auth-error {
+  min-height: 0;
+  margin-bottom: 12px;
+}
+
+#auth-screen #auth-error:empty {
+  display: none;
+}
+
+#auth-screen #auth-error .error {
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: 8px 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+#auth-screen #auth-submit {
+  width: 100%;
+  margin-top: 6px;
+}
+
+#auth-screen .auth-or {
+  margin: 18px 0;
+  text-align: center;
+  color: var(--fg-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#auth-screen #auth-guest {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+button.ghost {
+  background: #000000;
+  color: var(--fg);
+  border: 1px solid var(--fg);
+}
+
+@media (max-width: 640px) {
+  #auth-screen {
+    max-width: 100%;
+    margin-top: 24px;
+  }
+}
